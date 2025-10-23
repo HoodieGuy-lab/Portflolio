@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaFolios E-Commerce</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; background: #0a0a0a; color: #e0e0e0; font-family: 'Roboto Mono', monospace; }
+        nav { background: #181818; padding: 16px 0; box-shadow: 0 2px 8px #0004; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-size: 1.7em; font-weight: bold; color: #00ffff; letter-spacing: 2px; }
+        .nav-links a { color: #e0e0e0; text-decoration: none; margin: 0 16px; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #00ffff; }
+        .cart-btn { background: #00ffff; color: #181818; border: none; border-radius: 5px; padding: 8px 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .cart-btn:hover { background: #00bfbf; }
+        .hero { background: linear-gradient(90deg, #00ffff22 0%, #181818 100%); padding: 60px 0 40px 0; text-align: center; }
+        .hero h1 { font-size: 2.7em; margin-bottom: 10px; color: #00ffff; }
+        .hero p { font-size: 1.2em; color: #e0e0e0; margin-bottom: 25px; }
+        .products-section { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .products-title { font-size: 2em; margin-bottom: 30px; text-align: center; color: #00ffff; }
+        .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+        .product { background: #1a1a1a; padding: 22px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px #0004; }
+        .product img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
+        .product h2 { font-size: 1.2em; margin: 10px 0 6px 0; }
+        .product p { font-size: 1em; margin: 0 0 12px 0; }
+        .add-to-cart { background: #00ffff; color: #0a0a0a; padding: 10px 22px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; transition: background 0.2s; }
+        .add-to-cart:hover { background: #00bfbf; }
+        /* Cart Modal */
+        .cart-modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000a; z-index: 1000; }
+        .cart-modal { background: #181818; color: #e0e0e0; border-radius: 12px; max-width: 400px; margin: 80px auto; padding: 30px 24px; box-shadow: 0 4px 24px #0008; position: relative; }
+        .cart-modal h2 { margin-top: 0; color: #00ffff; }
+        .cart-close { position: absolute; top: 18px; right: 18px; background: none; border: none; color: #fff; font-size: 1.5em; cursor: pointer; }
+        #cart-items { list-style: none; padding: 0; margin: 0 0 18px 0; }
+        #cart-items li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; }
+        .remove-btn { background: #ff0055; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; margin-left: 10px; }
+        .remove-btn:hover { background: #d40045; }
+        #cart-total { font-weight: bold; margin-bottom: 18px; }
+        .checkout-btn { background: #00ffff; color: #181818; border: none; border-radius: 5px; padding: 10px 22px; font-weight: bold; cursor: pointer; width: 100%; }
+        .checkout-btn:hover { background: #00bfbf; }
+        /* Footer */
+        footer { background: #181818; color: #e0e0e0; text-align: center; padding: 30px 0 18px 0; margin-top: 60px; font-size: 1em; }
+        @media (max-width: 700px) {
+            .nav-container, .products-section { padding: 0 10px; }
+            .products { grid-template-columns: 1fr; }
+            .cart-modal { margin: 40px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">NovaFolios</div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Shop</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+            <button class="cart-btn" id="open-cart-btn" aria-label="Open cart">Cart (<span id="cart-count">0</span>)</button>
+        </div>
+    </nav>
+    <section class="hero">
+        <h1>Welcome to NovaFolios</h1>
+        <p>Your secure, modern e-commerce experience. Shop the latest products with confidence and style.</p>
+        <a href="#products" class="add-to-cart" style="text-decoration:none;">Shop Now</a>
+    </section>
+    <section class="products-section" id="products">
+        <div class="products-title">Featured Products</div>
+        <div class="products">
+            <div class="product">
+                <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" alt="Wireless Headphones">
+                <h2>Wireless Headphones</h2>
+                <p>$59.99</p>
+                <button class="add-to-cart" aria-label="Add Wireless Headphones to cart">Add to Cart</button>
+            </div>
+            <div class="product">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Smart Watch">
+                <h2>Smart Watch</h2>
+                <p>$129.99</p>
+                <button class="add-to-cart" aria-label="Add Smart Watch to cart">Add to Cart</button>
+            </div>
+            <div class="product">
+                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Bluetooth Speaker">
+                <h2>Bluetooth Speaker</h2>
+                <p>$39.99</p>
+                <button class="add-to-cart" aria-label="Add Bluetooth Speaker to cart">Add to Cart</button>
+            </div>
+            <div class="product">
+                <img src="https://images.unsplash.com/photo-1512446733611-9099a758e0f2?auto=format&fit=crop&w=400&q=80" alt="Fitness Tracker">
+                <h2>Fitness Tracker</h2>
+                <p>$49.99</p>
+                <button class="add-to-cart" aria-label="Add Fitness Tracker to cart">Add to Cart</button>
+            </div>
+        </div>
+    </section>
+    <!-- Cart Modal -->
+    <div class="cart-modal-bg" id="cart-modal-bg">
+        <div class="cart-modal">
+            <button class="cart-close" id="cart-close-btn" aria-label="Close cart">&times;</button>
+            <h2>Your Cart</h2>
+            <ul id="cart-items"></ul>
+            <p id="cart-total">Total: $0.00</p>
+            <button class="checkout-btn" id="checkout-btn">Checkout</button>
+        </div>
+    </div>
+    <footer>
+        &copy; 2025 NovaFolios. All rights reserved. | Secure E-Commerce Platform
+    </footer>
+    <script>
+        const cartItems = [];
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const product = btn.parentElement;
+                const name = product.querySelector('h2').textContent;
+                const price = parseFloat(product.querySelector('p').textContent.replace('$', ''));
+                const existing = cartItems.find(item => item.name === name);
+                if (existing) {
+                    existing.quantity += 1;
+                } else {
+                    cartItems.push({ name, price, quantity: 1 });
+                }
+                updateCart();
+                showCartCount();
+            });
+        });
+
+        function updateCart() {
+            const cartList = document.getElementById('cart-items');
+            cartList.innerHTML = '';
+            let total = 0;
+            cartItems.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.name} &times; ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</span>
+                    <button class="remove-btn" aria-label="Remove ${item.name} from cart" data-idx="${idx}">Remove</button>
+                `;
+                cartList.appendChild(li);
+                total += item.price * item.quantity;
+            });
+            document.getElementById('cart-total').textContent = `Total: $${total.toFixed(2)}`;
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = btn.getAttribute('data-idx');
+                    cartItems.splice(idx, 1);
+                    updateCart();
+                    showCartCount();
+                });
+            });
+        }
+
+        function showCartCount() {
+            document.getElementById('cart-count').textContent = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // Cart modal logic
+        const cartModalBg = document.getElementById('cart-modal-bg');
+        document.getElementById('open-cart-btn').onclick = () => {
+            cartModalBg.style.display = 'block';
+            updateCart();
+        };
+        document.getElementById('cart-close-btn').onclick = () => {
+            cartModalBg.style.display = 'none';
+        };
+        cartModalBg.onclick = (e) => {
+            if (e.target === cartModalBg) cartModalBg.style.display = 'none';
+        };
+
+        // Checkout button
+        document.getElementById('checkout-btn').onclick = () => {
+            if (cartItems.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            alert('Checkout is not implemented in this demo.');
+        };
+
+        // Initial cart count
+        showCartCount();
+    </script>
+</body>
+</html>

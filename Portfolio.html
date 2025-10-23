@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaPixel — Elite Tech Portfolio</title>
+    <link rel="icon" href="star.png" type="image/svg+xml">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root{
+            --navy:#0f172a;
+            --amber:#fcd34d;
+            --offwhite:#e7e5e4;
+            --gray:#334155;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:'Inter',sans-serif;
+            background:var(--navy);
+            color:var(--offwhite);
+            overflow-x:hidden;
+        }
+        .neo{
+            border:5px solid var(--amber);
+            box-shadow:10px 10px 0 var(--amber);
+            transition:all .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .neo:hover{
+            box-shadow:16px 16px 0 var(--amber);
+            transform:translate(-3px,-3px);
+        }
+        .parallax{
+            background-position:center;
+            background-size:cover;
+            background-repeat:no-repeat;
+        }
+        .glow{
+            text-shadow:0 0 20px rgba(252,211,77,.6);
+        }
+        .grain{
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+        .scroll-hint{animation:bounce 2s infinite;}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+        /* SKILL CARDS: SQUARED */
+        .skill-card{
+            background:var(--navy);
+            padding:2rem;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            height:280px;
+            border-radius:0;
+        }
+        .skill-card i{font-size:4rem;margin-bottom:1rem;color:var(--amber);}
+        .skill-card .bar-bg{
+            height:8px;
+            background:var(--gray);
+            border-radius:4px;
+            overflow:hidden;
+            margin-top:1rem;
+            width:100%;
+        }
+        .skill-card .bar-fill{
+            height:100%;
+            background:var(--amber);
+            width:0;
+            border-radius:4px;
+        }
+
+        /* PROJECT GALLERY: CSS AUTO-SCROLL (marquee) */
+        .gallery-wrapper{overflow:hidden;width:100%;}
+        .gallery{
+            display:flex;
+            gap:2rem;
+            animation:scroll 30s linear infinite;
+            align-items:flex-start;
+        }
+        @keyframes scroll{
+            0%{transform:translateX(0);}
+            100%{transform:translateX(-50%);}
+        }
+        .gallery:hover{animation-play-state:paused;}
+        .gallery-item{
+            min-width:320px;
+            flex-shrink:0;
+            cursor:pointer;
+            transition:transform .25s ease, box-shadow .25s ease;
+        }
+        @media(min-width:768px){.gallery-item{min-width:400px;}}
+
+        .gallery-item img{transition:transform .35s ease;border-radius:12px;}
+        .gallery-item:hover img{transform:scale(1.03);} 
+
+        /* TYPEWRITER: FULLY VISIBLE + SMOOTH */
+        .typewriter-container {
+            position: relative;
+            height: 100px;
+            overflow: visible;
+            line-height: 1;
+        }
+        .typewriter-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(20px);
+            font-size: 4.5rem;
+            font-weight: 800;
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            white-space: nowrap;
+            width: auto;
+        }
+        .typewriter-text.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(0);
+        }
+
+        /* Navbar Styles */
+        .nav-transparent {
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+        }
+        .nav-solid {
+            background: rgba(15,23,42,0.95);
+            border-color: var(--amber);
+            box-shadow: 0 4px 6px -1px rgba(252,211,77,0.1);
+        }
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: var(--amber);
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+            left: 0;
+        }
+        .nav-link.active {
+            color: var(--amber);
+        }
+        .nav-link.active::after {
+            width: 100%;
+            left: 0;
+        }
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--amber);
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        @media (min-width: 768px) {
+            .typewriter-text {
+                font-size: 6rem;
+            }
+            .typewriter-container {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body class="grain">
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="scrollProgress"></div>
+
+<!-- NAVBAR -->
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 nav-transparent">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#" class="text-3xl font-black tracking-tighter glow">NovaPixel</a>
+        
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex space-x-8 text-lg font-medium">
+            <li><a href="#hero" class="nav-link active">Home</a></li>
+            <li><a href="#skills" class="nav-link">Skills</a></li>
+            <li><a href="#projects" class="nav-link">Projects</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+
+        <!-- Mobile Menu Button -->
+        <button id="menuBtn" class="md:hidden text-2xl focus:outline-none">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 h-full w-64 bg-[var(--navy)] shadow-lg md:hidden">
+            <div class="p-6">
+                <button id="closeMenu" class="absolute top-4 right-4 text-2xl focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+                <ul class="space-y-6 mt-12 text-lg">
+                    <li><a href="#hero" class="block nav-link">Home</a></li>
+                    <li><a href="#skills" class="block nav-link">Skills</a></li>
+                    <li><a href="#projects" class="block nav-link">Projects</a></li>
+                    <li><a href="#about" class="block nav-link">About</a></li>
+                    <li><a href="#contact" class="block nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+            <li><a href="#contact" class="hover:text-[var(--amber)] transition">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="h-screen flex flex-col items-center justify-center text-center parallax" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    <div class="neo p-16 bg-[rgba(15,23,42,0.92)] max-w-5xl mx-auto">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-4 glow leading-tight">
+            <span class="text-[var(--amber)]">I BUILD</span><br>
+            <div class="typewriter-container">
+                <div class="typewriter-text active">SYSTEMS</div>
+                <div class="typewriter-text">WEBPAGES</div>
+                <div class="typewriter-text">PCs</div>
+                <div class="typewriter-text">SOLUTIONS</div>
+            </div>
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 font-light opacity-90">Web • Systems • PCs • Solutions</p>
+        <a href="#contact" class="inline-block bg-[var(--amber)] text-[var(--navy)] px-10 py-4 text-xl font-bold neo hover:shadow-2xl">HIRE ME</a>
+        <div class="mt-12 scroll-hint"><i class="fas fa-chevron-down text-4xl text-[var(--amber)]"></i></div>
+    </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="py-32 bg-[var(--navy)]">
+    <div class="container mx-auto px-6">
+        <h2 class="text-5xl font-black text-center mb-16 glow">SKILLS MATRIX</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div class="skill-card neo">
+                <i class="fas fa-code"></i>
+                <h3 class="text-2xl font-bold mb-2">Web Dev</h3>
+                <p class="text-sm opacity-80">React • Tailwind • Node • APIs</p>
+                <div class="bar-bg"><div class="bar-fill" data-target="92%"></div></div>
+            </div>
+            <div class="skill-card neo">
+                <i class="fas fa-cogs"></i>
+                <h3 class="text-2xl font-bold mb-2">System Design</h3>
+                <p class="text-sm opacity-80">Architecture • Optimization</p>
+                <div class="bar-bg"><div class="bar-fill" data-target="85%"></div></div>
+            </div>
+            <div class="skill-card neo">
+                <i class="fas fa-microchip"></i>
+                <h3 class="text-2xl font-bold mb-2">PC Building</h3>
+                <p class="text-sm opacity-80">Custom Rigs • Overclocking</p>
+                <div class="bar-bg"><div class="bar-fill" data-target="100%"></div></div>
+            </div>
+            <div class="skill-card neo">
+                <i class="fas fa-wrench"></i>
+                <h3 class="text-2xl font-bold mb-2">Troubleshooting</h3>
+                <p class="text-sm opacity-80">Hardware • Software • Networks</p>
+                <div class="bar-bg"><div class="bar-fill" data-target="90%"></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="py-32 bg-[url('https://images.unsplash.com/photo-1550745162-54605033e975?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] parallax">
+    <div class="container mx-auto px-6">
+        <h2 class="text-5xl font-black text-center mb-16 glow text-white">PROJECT SHOWCASE</h2>
+        <div class="gallery-wrapper">
+            <div class="gallery">
+                <!-- CARD SET -->
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('anonybox')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="anonybox.png" alt="Anonybox" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Anonybox</h3>
+                    <p class="text-sm opacity-80">Anonymous confession bot for Discord.</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('store')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="shopsys.png" alt="Store Management" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Store Management System</h3>
+                    <p class="text-sm opacity-80">Full-stack inventory app (coming soon).</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('ecommerce')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="ecommerce.png" alt="E-Commerce" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">E-Commerce Platform</h3>
+                    <p class="text-sm opacity-80">React + Node online store.</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('gamingpc')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="4090.png" alt="Custom Gaming PC" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Custom Gaming PC</h3>
+                    <p class="text-sm opacity-80">High-end build with RTX 4090.</p>
+                </div>
+
+                <!-- DUPLICATE SET FOR SEAMLESS SCROLL -->
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('anonybox')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="anonybox.png" alt="Anonybox" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Anonybox</h3>
+                    <p class="text-sm opacity-80">Anonymous confessions webpage.</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('store')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="Shopsys.png" alt="Store Management" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Store Management System</h3>
+                    <p class="text-sm opacity-80">Full-stack inventory app (coming soon).</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('ecommerce')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="Ecommerce.png" alt="E-Commerce" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">E-Commerce Platform</h3>
+                    <p class="text-sm opacity-80">React + Node online store.</p>
+                </div>
+                <div class="neo gallery-item bg-[rgba(15,23,42,0.9)] p-6" onclick="openModal('gamingpc')">
+                    <div class="w-full h-48 mb-4 overflow-hidden rounded-xl">
+                        <img src="4090.png" alt="Custom Gaming PC" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-xl font-bold">Custom Gaming PC</h3>
+                    <p class="text-sm opacity-80">High-end build with RTX 4090.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-32 bg-[var(--navy)]">
+    <div class="container mx-auto px-6 max-w-4xl text-center">
+        <h2 class="text-5xl font-black mb-12 glow">WHO AM I?</h2>
+        <div class="neo p-12 bg-gradient-to-br from-[var(--navy)] to-[var(--gray)]">
+            <p class="text-lg leading-relaxed mb-6">
+                Based in <strong class="text-[var(--amber)]">Morocco</strong>, serving clients <strong class="text-[var(--amber)]">globally</strong>.<br>
+                Armed with iFixit Pro Kit, Fluke multimeter, and 10+ years of tech mastery.
+            </p>
+            <a href="#" class="inline-block bg-[var(--amber)] text-[var(--navy)] px-8 py-4 font-bold neo">Download Resume (PDF)</a>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="py-32 bg-[url('https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] parallax">
+    <div class="container mx-auto px-6 max-w-2xl">
+        <h2 class="text-5xl font-black text-center mb-16 glow text-white">LET'S COLLAB</h2>
+        <form id="contactForm" class="neo p-10 bg-[rgba(15,23,42,0.95)] space-y-6">
+            <div class="space-y-2">
+                <input type="text" name="name" id="contactName" placeholder="Name" required 
+                    class="w-full p-4 bg-transparent border-4 border-[var(--amber)] placeholder-gray-400 focus:outline-none focus:border-white transition">
+                <div class="error-message hidden text-red-500 text-sm"></div>
+            </div>
+            <div class="space-y-2">
+                <input type="email" name="email" id="contactEmail" placeholder="Email" required 
+                    class="w-full p-4 bg-transparent border-4 border-[var(--amber)] placeholder-gray-400 focus:outline-none focus:border-white transition">
+                <div class="error-message hidden text-red-500 text-sm"></div>
+            </div>
+            <div class="space-y-2">
+                <textarea name="message" id="contactMessage" placeholder="Your Project Idea..." required 
+                    class="w-full p-4 bg-transparent border-4 border-[var(--amber)] h-40 placeholder-gray-400 focus:outline-none focus:border-white transition"></textarea>
+                <div class="error-message hidden text-red-500 text-sm"></div>
+            </div>
+            <button type="submit" class="w-full bg-[var(--amber)] text-[var(--navy)] py-4 font-black text-xl neo hover:shadow-2xl">
+                <span id="submitText">SEND MESSAGE</span>
+                <span id="submitSpinner" class="hidden">
+                    <i class="fas fa-spinner fa-spin"></i> SENDING...
+                </span>
+            </button>
+        </form>
+        <div id="formSuccess" class="hidden mt-6 p-4 bg-green-500/20 border-2 border-green-500 text-green-500 text-center rounded">
+            Message sent successfully! I'll get back to you soon.
+        </div>
+        <div id="formError" class="hidden mt-6 p-4 bg-red-500/20 border-2 border-red-500 text-red-500 text-center rounded">
+            There was an error sending your message. Please try again or email directly.
+        </div>
+        <pre id="contactDebug" class="hidden mt-4 p-3 text-xs bg-[rgba(0,0,0,0.4)] border border-[var(--amber)] rounded max-h-40 overflow-auto"></pre>
+        <div class="text-center mt-8">
+            <p class="text-lg">Or email me directly at:</p>
+            <a href="mailto:novapixeldev@gmail.com" class="text-[var(--amber)] font-mono text-lg hover:underline">novapixeldev@gmail.com</a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-12 text-center border-t-4 border-[var(--amber)] bg-[var(--navy)]">
+    <div class="flex justify-center gap-6 mb-6">
+        <a href="mailto:novapixeldev@gmail.com" class="text-[var(--amber)] hover:text-white transition-colors">
+            <i class="fas fa-envelope text-2xl"></i>
+        </a>
+        <a href="https://github.com/HoodieGuy-lab" class="text-[var(--amber)] hover:text-white transition-colors">
+            <i class="fab fa-github text-2xl"></i>
+        </a>
+        <a href="https://x.com/NovaPixeI" class="text-[var(--amber)] hover:text-white transition-colors">
+            <i class="fab fa-twitter text-2xl"></i>
+        </a>
+        <a href="https://www.instagram.com/dev.novapixel/" class="text-[var(--amber)] hover:text-white transition-colors">
+            <i class="fab fa-instagram text-2xl"></i>
+        </a>
+        <a href="https://discord.com/users/1219687309054705756" class="text-[var(--amber)] hover:text-white transition-colors">
+            <i class="fab fa-discord text-2xl"></i>
+        </a>
+    </div>
+    <p class="text-sm opacity-70">© 2025 NovaPixel. Built with sweat & code.</p>
+</footer>
+
+<!-- MODALS -->
+<div id="modal-anonybox" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="neo p-8 bg-[var(--navy)] max-w-md">
+        <h3 class="text-2xl font-bold mb-4">Anonybox Details</h3>
+        <p>Advanced anonymous messaging.</p>
+        <a href="https://hoodieguy-lab.github.io/AnonyBox/Index.html" class="mt-4 bg-[var(--amber)] text-[var(--navy)] px-4 py-2 inline-block">View on GitHub</a>
+        <button onclick="closeModal('anonybox')" class="mt-4 bg-[var(--gray)] text-white px-4 py-2">Close</button>
+    </div>
+</div>
+
+<div id="modal-store" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="neo p-8 bg-[var(--navy)] max-w-md">
+        <h3 class="text-2xl font-bold mb-4">Store Management System</h3>
+        <p>Upcoming full-stack system for inventory and sales management. Will include real-time tracking, reporting, and user auth. Tech: React, Node, MongoDB.</p>
+        <button onclick="closeModal('store')" class="mt-4 bg-[var(--gray)] text-white px-4 py-2">Close</button>
+    </div>
+</div>
+
+<div id="modal-ecommerce" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="neo p-8 bg-[var(--navy)] max-w-md">
+        <h3 class="text-2xl font-bold mb-4">E-Commerce Platform</h3>
+        <p>Full-stack online shopping app with cart, payments, and admin dashboard. Built with React, Node.js, Express, and Stripe integration.</p>
+        <a href="https://hoodieguy-lab.github.io/Ecommerce/Ecommerce.html" class="mt-4 bg-[var(--amber)] text-[var(--navy)] px-4 py-2 inline-block">Live Demo</a>
+        <button onclick="closeModal('ecommerce')" class="mt-4 bg-[var(--gray)] text-white px-4 py-2">Close</button>
+    </div>
+</div>
+
+<div id="modal-gamingpc" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="neo p-8 bg-[var(--navy)] max-w-md">
+        <h3 class="text-2xl font-bold mb-4">Custom Gaming PC</h3>
+        <p>High-performance gaming rig with RTX 4090, liquid cooling, RGB lighting. Optimized for 4K gaming and streaming.</p>
+        <button onclick="closeModal('gamingpc')" class="mt-4 bg-[var(--gray)] text-white px-4 py-2">Close</button>
+    </div>
+</div>
+
+<div id="modal-network" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+    <div class="neo p-8 bg-[var(--navy)] max-w-md">
+        <h3 class="text-2xl font-bold mb-4">Network Overhaul</h3>
+        <p>Enterprise LAN optimization with improved security, speed, and scalability. Involved Cisco hardware and custom scripting.</p>
+        <button onclick="closeModal('network')" class="mt-4 bg-[var(--gray)] text-white px-4 py-2">Close</button>
+    </div>
+</div>
+
+<script>
+/* SMOOTH TYPEWRITER - FULLY VISIBLE */
+const words = ["SYSTEMS", "WEBPAGES", "PCs", "SOLUTIONS"];
+let currentIndex = 0;
+const texts = document.querySelectorAll('.typewriter-text');
+
+function showNextWord() {
+    texts[currentIndex].classList.remove('active');
+    currentIndex = (currentIndex + 1) % words.length;
+    texts[currentIndex].classList.add('active');
+}
+setInterval(showNextWord, 2000);
+
+/* PROGRESS BARS */
+gsap.registerPlugin(ScrollTrigger);
+gsap.utils.toArray('.bar-fill').forEach(bar => {
+    const target = bar.getAttribute('data-target');
+    gsap.to(bar, {
+        width: target,
+        duration: 1.5,
+        ease: "power2.out",
+        scrollTrigger: { trigger: bar.closest('.skill-card'), start: "top 80%" }
+    });
+});
+
+/* SMOOTH SCROLL */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+/* SECTION FADE-IN */
+gsap.utils.toArray('section').forEach(sec => {
+    gsap.from(sec, {
+        opacity: 0, y: 80, duration: 1.2, ease: "power3.out",
+        scrollTrigger: { trigger: sec, start: "top 80%", toggleActions: "play none none reverse" }
+    });
+});
+
+/* Initialize Supabase (robust) */
+const SUPABASE_URL = 'https://twocvgsrzrdoxrpedlrq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3b2N2Z3NyenJkb3hycGVkbHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTU1MTcsImV4cCI6MjA3NjU3MTUxN30.CM0U1sv2hPog0dy3cBZd7lpCQ1ZZHn3oNPxzoN8p4EE';
+let supabase;
+try {
+    if (typeof createClient === 'function') {
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.error('Supabase library not found. Make sure the script tag is loaded.');
+    }
+} catch (err) {
+    console.error('Error initializing Supabase client:', err);
+}
+
+/* CONTACT FORM FUNCTIONALITY */
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Reset error states
+    document.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
+    document.getElementById('formSuccess').classList.add('hidden');
+    document.getElementById('formError').classList.add('hidden');
+    
+    // Get form data
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    
+    // Validate
+    let isValid = true;
+    if (name.length < 2) {
+        showError('contactName', 'Name must be at least 2 characters');
+        isValid = false;
+    }
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        showError('contactEmail', 'Please enter a valid email address');
+        isValid = false;
+    }
+    if (message.length < 10) {
+        showError('contactMessage', 'Message must be at least 10 characters');
+        isValid = false;
+    }
+    
+    if (!isValid) return;
+    
+    // Show loading state
+    toggleSubmitButton(true);
+    
+    try {
+        const { data, error } = await supabase
+            .from('messages')
+            .insert([
+                { name, email, message }
+            ]);
+        
+        if (error) throw error;
+        
+        // Show success message
+        document.getElementById('formSuccess').classList.remove('hidden');
+        // Clear form
+        document.getElementById('contactForm').reset();
+    } catch (error) {
+        console.error('Error:', error.message || error);
+        document.getElementById('formError').classList.remove('hidden');
+        const dbg = document.getElementById('contactDebug');
+        dbg.classList.remove('hidden');
+        dbg.textContent = (error.message || JSON.stringify(error, null, 2));
+    } finally {
+        toggleSubmitButton(false);
+    }
+});
+
+function showError(fieldId, message) {
+    const errorDiv = document.querySelector(`#${fieldId} + .error-message`);
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+}
+
+function toggleSubmitButton(loading) {
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const button = submitText.closest('button');
+    
+    if (loading) {
+        submitText.classList.add('hidden');
+        submitSpinner.classList.remove('hidden');
+        button.disabled = true;
+    } else {
+        submitText.classList.remove('hidden');
+        submitSpinner.classList.add('hidden');
+        button.disabled = false;
+    }
+}
+
+/* MODAL FUNCTIONS */
+function openModal(id) {
+    document.getElementById(`modal-${id}`).classList.remove('hidden');
+}
+function closeModal(id) {
+    document.getElementById(`modal-${id}`).classList.add('hidden');
+}
+
+/* NAVBAR FUNCTIONALITY */
+// Mobile menu
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const closeMenu = document.getElementById('closeMenu');
+
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+});
+
+closeMenu.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+});
+
+// Close menu when clicking a link
+document.querySelectorAll('#mobileMenu .nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+    });
+});
+
+// Navbar background transition
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+        nav.classList.remove('nav-transparent');
+        nav.classList.add('nav-solid');
+    } else {
+        nav.classList.add('nav-transparent');
+        nav.classList.remove('nav-solid');
+    }
+});
+
+// Active link highlighting
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (scrollY >= sectionTop - 150) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').slice(1) === current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Scroll progress bar
+const progressBar = document.getElementById('scrollProgress');
+window.addEventListener('scroll', () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    progressBar.style.width = scrolled + '%';
+});
+
+/* MARQUEE: Make gallery scroll seamless by duplicating content until wide enough */
+function initMarquee() {
+    const gallery = document.querySelector('.gallery');
+    if (!gallery) return;
+
+    // If already processed, skip
+    if (gallery.dataset.marquee === 'ready') return;
+
+    // Duplicate items until gallery scroll width > 2x container width
+    const containerWidth = gallery.parentElement.clientWidth;
+    let totalWidth = gallery.scrollWidth;
+    let duplicateCount = 0;
+
+    while (totalWidth < containerWidth * 2 && duplicateCount < 10) {
+        gallery.innerHTML += gallery.innerHTML; // double the content
+        totalWidth = gallery.scrollWidth;
+        duplicateCount++;
+    }
+
+    // Compute duration based on width (px -> seconds)
+    const pixelsToScroll = totalWidth / 2; // since content is duplicated
+    const speedPxPerSec = 80; // adjust speed (px per second)
+    const duration = Math.max(12, Math.round(pixelsToScroll / speedPxPerSec));
+
+    // Inject dynamic keyframes with computed duration
+    const styleId = 'marquee-dynamic-style';
+    let styleTag = document.getElementById(styleId);
+    if (styleTag) styleTag.remove();
+    styleTag = document.createElement('style');
+    styleTag.id = styleId;
+    styleTag.innerHTML = `@keyframes marquee-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${pixelsToScroll}px); } } .gallery{ animation: marquee-scroll ${duration}s linear infinite; }`;
+    document.head.appendChild(styleTag);
+
+    gallery.dataset.marquee = 'ready';
+}
+
+window.addEventListener('load', initMarquee);
+window.addEventListener('resize', () => {
+    document.querySelectorAll('[id="marquee-dynamic-style"]').forEach(n => n.remove());
+    const g = document.querySelector('.gallery'); if (g) g.dataset.marquee = '';
+    setTimeout(initMarquee, 250);
+});
+</script>
+</body>
+</html>
